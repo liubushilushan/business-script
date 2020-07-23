@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss} [%thread] %-5level %logger -%msg%n</pattern>
+            <charset>utf8</charset>
+        </encoder>
+    </appender>
+    <!-- 自定义各种logger -->
+    <root level="info">
+        <appender-ref ref="CONSOLE" />
+    </root>
+    <logger name="org.apache.kafka" level="info"/>
+</configuration>

@@ -1,0 +1,49 @@
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/test/**
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+
+### VS Code ###
+.vscode/
+.mvn
+mvnw.cmd
+mvnw
+HELP.md
+
+### MAXCOMPUTE ###
+temp/
+warehouse/
+
+### 手码的 ###
+.idea/
+target/
+logs/
+*.rar
+*.sql.bak
+classes/
+*.log
+
+### 公司隐私文件 ###
+company.properties
