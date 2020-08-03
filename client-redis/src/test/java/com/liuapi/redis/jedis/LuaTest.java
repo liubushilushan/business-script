@@ -19,10 +19,10 @@ public class LuaTest {
     void testCompareAndThenDeleteLock() {
         try (Jedis jedis = new Jedis("localhost");) {
             String lua = "if redis.call(\"get\",KEYS[1]) == ARGV[1] then" +
-                    "        return redis.call(\"del\",KEYS[1])" +
-                    "     else" +
-                    "        return 0" +
-                    "     end";
+                    " return redis.call(\"del\",KEYS[1])" +
+                    " else" +
+                    " return 0" +
+                    " end";
             int value = (int) jedis.eval(lua, Lists.newArrayList("user.lock"), Lists.newArrayList("1"));
             if (value == 1) {
                 System.out.println("delete success!");
@@ -44,10 +44,10 @@ public class LuaTest {
         int buyNumber = 1;
         try (Jedis jedis = new Jedis("localhost");) {
             String lua = "if (redis.call('get',KEYS[1])-ARGV[1])>=0 then" +
-                    "        return redis.call('decrby',KEYS[1],ARGV[1])" +
-                    "     else" +
-                    "        return -1" +
-                    "     end";
+                    " return redis.call('decrby',KEYS[1],ARGV[1])" +
+                    " else" +
+                    " return -1" +
+                    " end";
             long lastNumber = 0;
             do{
                 lastNumber = (long) jedis.eval(lua, Lists.newArrayList("goods1.number"), Lists.newArrayList(buyNumber+""));
