@@ -8,3 +8,4 @@ aliyun.sms.domain=
 aliyun.sms.action=
 aliyun.sms.signName=
 aliyun.sms.templateId=
+kafak.bootstrap.servers=192.168.110.12:9092

@@ -16,6 +16,8 @@
         <module>aliyun-oss</module>
         <module>client-kafka</module>
         <module>client-http</module>
+        <module>client-mongodb</module>
+        <module>client-redis</module>
     </modules>
 
     <packaging>pom</packaging>
