@@ -94,4 +94,22 @@ public class LuaTest {
             System.out.println(value);
         }
     }
+
+    @Test
+    void testLuaSha1(){
+        String lua = "if (redis.call('get',KEYS[1])-ARGV[1])>=0 then" +
+                " return redis.call('decrby',KEYS[1],ARGV[1])" +
+                " else" +
+                " return -1" +
+                " end";
+        try (Jedis jedis = new Jedis("localhost");) {
+            String sha1 = jedis.scriptLoad(lua);
+            System.out.println(sha1);
+
+            int buyNumber = 10;
+            long lastNumber = 0;
+            lastNumber = (long)jedis.evalsha(sha1, Lists.newArrayList("goods1.number"), Lists.newArrayList(buyNumber + ""));
+            System.out.println(lastNumber);
+        }
+    }
 }
