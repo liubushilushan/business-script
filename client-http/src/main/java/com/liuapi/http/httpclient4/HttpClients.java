@@ -31,7 +31,7 @@ public class HttpClients {
 
     static {
         httpclient = HttpClientBuilder.create()
-                .setMaxConnPerRoute(2)
+                .setMaxConnPerRoute(5)
                 .setMaxConnTotal(20)
                 // 设置tcp连接的属性
                 .setDefaultSocketConfig(SocketConfig.custom()
@@ -58,11 +58,11 @@ public class HttpClients {
                 // 超时控制
                 .setDefaultRequestConfig(RequestConfig.custom()
                         // 从连接池获取连接的超时时间
-                        .setConnectionRequestTimeout(1000)
+                        .setConnectionRequestTimeout(1*1000)
                         // 建立连接的超时时间，超时后抛ConnectionTimeOutException
-                        .setConnectTimeout(1000)
+                        .setConnectTimeout(1*1000)
                         // 即为SO_TIMEOUT 超时会抛SocketTimeOutException
-                        .setSocketTimeout(1000).build())
+                        .setSocketTimeout(10*1000).build())
                 .build();
     }
 
