@@ -19,7 +19,6 @@
         <module>client-mongodb</module>
         <module>client-redis</module>
         <module>client-rocketmq</module>
-        <module>aliyun-sls</module>
     </modules>
 
     <packaging>pom</packaging>
