@@ -6,6 +6,7 @@ import com.liuapi.dingtalk.api.model.MarkdownDingMsg;
 import com.liuapi.http.httpclient4.HttpClients;
 
 import java.io.IOException;
+import java.util.Collections;
 
 public class DingMsgSender {
     private static ObjectMapper objectMapper = new ObjectMapper();
@@ -22,7 +23,7 @@ public class DingMsgSender {
             String value = objectMapper.writeValueAsString(msg);
             // 迭代发送消息
             for (String webHook : webHooks) {
-                HttpClients.doPostWithJson(webHook, value);
+                HttpClients.doPostWithJson(webHook, value, null);
             }
         } catch (JsonProcessingException e) {
             e.printStackTrace();

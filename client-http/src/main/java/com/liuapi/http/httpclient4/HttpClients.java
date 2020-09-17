@@ -8,22 +8,20 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class HttpClients {
@@ -38,51 +36,53 @@ public class HttpClients {
                         .setSoKeepAlive(true)
                         .build())
                 // 设置重试策略,针对连接超时，读超时进行一些重试
-                .setRetryHandler((ex, retryCount,httpContext) -> {
-                        if (retryCount > 2) {
-                            log.info("retry end but still not success! ex: {} ",ex.getMessage());
-                            return false;
-                        }
-
-                        if (ex instanceof NoHttpResponseException) {
-                            log.info("retrying reach to {} times,cause NoHttpResponse, ex: {} ",retryCount,ex.getMessage());
-                            return true;
-                        }
-                        if (ex instanceof InterruptedIOException){
-                            log.info("retrying reach to {} times,cause InterruptedIOException, ex: {} ",retryCount,ex.getMessage());
-                            return true;
-                        }
-
+                .setRetryHandler((ex, retryCount, httpContext) -> {
+                    if (retryCount > 2) {
+                        log.info("retry end but still not success! ex: {} ", ex.getMessage());
                         return false;
-                    })
+                    }
+
+                    if (ex instanceof NoHttpResponseException) {
+                        log.info("retrying reach to {} times,cause NoHttpResponse, ex: {} ", retryCount, ex.getMessage());
+                        return true;
+                    }
+                    if (ex instanceof InterruptedIOException) {
+                        log.info("retrying reach to {} times,cause InterruptedIOException, ex: {} ", retryCount, ex.getMessage());
+                        return true;
+                    }
+
+                    return false;
+                })
                 // 超时控制
                 .setDefaultRequestConfig(RequestConfig.custom()
                         // 从连接池获取连接的超时时间
-                        .setConnectionRequestTimeout(1*1000)
+                        .setConnectionRequestTimeout(1 * 1000)
                         // 建立连接的超时时间，超时后抛ConnectionTimeOutException
-                        .setConnectTimeout(1*1000)
+                        .setConnectTimeout(1 * 1000)
                         // 即为SO_TIMEOUT 超时会抛SocketTimeOutException
-                        .setSocketTimeout(10*1000).build())
+                        .setSocketTimeout(10 * 1000).build())
                 .build();
     }
 
-    public static String doGet(String url, Map<String, String> map) throws IOException, URISyntaxException {
-        List<NameValuePair> nvps = turnMapToNameValuePair(map);
+    public static String doGet(String url, Map<String, String> params,Map<String, String> headers) throws IOException, URISyntaxException {
         URIBuilder uriBuilder = new URIBuilder(url);
+        List<NameValuePair> nvps = turnMapToNameValuePairs(params);
         uriBuilder.addParameters(nvps);
         HttpGet httpGet = new HttpGet(uriBuilder.build());
+        httpGet.setHeaders(turnMapToHeaders(headers));
         HttpResponse response = httpclient.execute(httpGet);
         return EntityUtils.toString(response.getEntity(), Consts.UTF_8);
     }
 
-    public static String doPostWithFormData(String url, Map<String, String> map) throws IOException {
+    public static String doPostWithFormData(String url, Map<String, String> params,Map<String, String> headers) throws IOException {
         HttpPost httpPost = new HttpPost(url);
-        if (null != map && map.size() > 0) {
+        httpPost.setHeaders(turnMapToHeaders(headers));
+        if (null != params && params.size() > 0) {
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-            for (Map.Entry<String, String> entry : map.entrySet()) {
+            for (Map.Entry<String, String> entry : params.entrySet()) {
                 if (entry.getValue() == null)
                     continue;
-                builder.addTextBody(entry.getKey(), entry.getValue().toString(), ContentType.TEXT_PLAIN);
+                builder.addTextBody(entry.getKey(), entry.getValue(), ContentType.TEXT_PLAIN);
             }
             HttpEntity entity = builder.build();
             httpPost.setEntity(entity);
@@ -91,35 +91,43 @@ public class HttpClients {
         return EntityUtils.toString(response.getEntity(), Consts.UTF_8);
     }
 
-    public static String doPostWithXWwwFormUrlencoded(String url, Map<String, String> map) throws IOException {
+    public static String doPostWithXWwwFormUrlencoded(String url, Map<String, String> params, Map<String, String> headers) throws IOException {
         HttpPost httpPost = new HttpPost(url);
-        if (null != map && map.size() > 0) {
-            List<NameValuePair> nameValuePairs = turnMapToNameValuePair(map);
+        httpPost.setHeaders(turnMapToHeaders(headers));
+        if (null != params && params.size() > 0) {
+            List<NameValuePair> nameValuePairs = turnMapToNameValuePairs(params);
             httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, Consts.UTF_8));
         }
         HttpResponse response = httpclient.execute(httpPost);
         return EntityUtils.toString(response.getEntity(), Consts.UTF_8);
     }
 
-    public static String doPostWithJson(String url, String json) throws IOException {
+    public static String doPostWithJson(String url, String json, Map<String, String> headers) throws IOException {
         HttpPost httpPost = new HttpPost(url);
+        httpPost.setHeaders(turnMapToHeaders(headers));
         StringEntity stringEntity = new StringEntity(json, ContentType.APPLICATION_JSON);
         httpPost.setEntity(stringEntity);
         HttpResponse response = httpclient.execute(httpPost);
         return EntityUtils.toString(response.getEntity(), Consts.UTF_8);
     }
 
-    private static List<NameValuePair> turnMapToNameValuePair(Map<String, String> params) {
-        List<NameValuePair> list = new ArrayList<NameValuePair>();
+    private static List<NameValuePair> turnMapToNameValuePairs(Map<String, String> params) {
         if (params == null) {
-            return list;
+            return Collections.emptyList();
         }
-        Iterator<String> itr = params.keySet().iterator();
-        while (itr.hasNext()) {
-            String key = itr.next();
-            String value = params.get(key);
-            list.add(new BasicNameValuePair(key, value));
+        return params.entrySet()
+                .stream()
+                .map(e -> new BasicNameValuePair(e.getKey(), e.getValue()))
+                .collect(Collectors.toList());
+    }
+
+    private static Header[] turnMapToHeaders(Map<String, String> params) {
+        if (params == null) {
+            return null;
         }
-        return list;
+        return params.entrySet()
+                .stream()
+                .map(e -> new BasicHeader(e.getKey(), e.getValue()))
+                .toArray(BasicHeader[]::new);
     }
 }

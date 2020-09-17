@@ -42,7 +42,7 @@ public class TracePlanApi {
         /*规划策略*/
         map.put(STRATEGY, STRATEGY_PLAN);
         /*访问高德URL获取数据*/
-        return HttpClients.doGet(url,map);
+        return HttpClients.doGet(url,map,null);
     }
 
     public static TracePlanResult queryForTracePlanResult(double aLng,double alat,double blng,double blat) throws IOException, URISyntaxException {
