@@ -18,7 +18,7 @@
         <module>client-http</module>
         <module>client-mongodb</module>
         <module>client-redis</module>
-        <module>client-rocketmq</module>
+        <module>aliyun-rocketmq</module>
     </modules>
 
     <packaging>pom</packaging>
