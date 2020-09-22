@@ -16,6 +16,10 @@ import java.util.Date;
 import java.util.List;
 
 public class MongoClientTest {
+    /**
+     * MongoClientUrl: mongodb://账号:密码@地址:端口/数据库名?ssl=false
+     * @throws UnknownHostException
+     */
     @Test
     void ping() throws UnknownHostException {
         Date from = Date.from(
