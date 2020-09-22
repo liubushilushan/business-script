@@ -11,5 +11,17 @@
 
     <artifactId>property</artifactId>
 
-
+    <dependencies>
+        <!-- https://mvnrepository.com/artifact/com.aliyun.openservices/ons-client -->
+        <dependency>
+            <groupId>org.apache.rocketmq</groupId>
+            <artifactId>rocketmq-client</artifactId>
+            <version>4.5.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.rocketmq</groupId>
+            <artifactId>rocketmq-acl</artifactId>
+            <version>4.5.2</version>
+        </dependency>
+    </dependencies>
 </project>

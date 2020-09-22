@@ -17,5 +17,9 @@
             <artifactId>spring-data-mongodb</artifactId>
             <version>1.10.15.RELEASE</version>
         </dependency>
+        <dependency>
+            <groupId>com.liuapi.business</groupId>
+            <artifactId>property</artifactId>
+        </dependency>
     </dependencies>
 </project>
