@@ -4,6 +4,10 @@ import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 import redis.clients.jedis.Jedis;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Set;
+
 /**
  * Redis 通过lua脚本可以实现CAS操作
  * 如何保证：
@@ -110,6 +114,22 @@ public class LuaTest {
             long lastNumber = 0;
             lastNumber = (long)jedis.evalsha(sha1, Lists.newArrayList("goods1.number"), Lists.newArrayList(buyNumber + ""));
             System.out.println(lastNumber);
+        }
+    }
+
+    @Test
+    void executeCheckAndGetAndSet(){
+        String lua = "if (redis.call('scard',KEYS[1]))>0 then" +
+                " local b = redis.call('smembers',KEYS[1]);"+
+                " redis.call('del',KEYS[1]);"+
+                " return b" +
+                " else" +
+                " return nil" +
+                " end";
+        try (Jedis jedis = new Jedis("localhost");) {
+            ArrayList<String> sets= (ArrayList<String>)jedis.eval(
+                    lua, Lists.newArrayList("session:loop0"), Collections.emptyList());
+            System.out.println(sets);
         }
     }
 }

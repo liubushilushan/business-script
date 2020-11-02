@@ -23,7 +23,6 @@
 
     <packaging>pom</packaging>
     <properties>
-        <guava.version>28.1-jre</guava.version>
         <lombok.version>1.18.8</lombok.version>
         <dubbo.version>2.7.4.1</dubbo.version>
         <curator.version>2.12.0</curator.version>
