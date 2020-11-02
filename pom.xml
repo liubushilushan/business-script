@@ -19,6 +19,7 @@
         <module>client-mongodb</module>
         <module>client-redis</module>
         <module>aliyun-rocketmq</module>
+        <module>client-mysql</module>
     </modules>
 
     <packaging>pom</packaging>
