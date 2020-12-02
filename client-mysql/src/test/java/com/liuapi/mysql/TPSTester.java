@@ -1,6 +1,6 @@
 package com.liuapi.mysql;
 
-import com.alibaba.druid.pool.DruidDataSource;
+import com.liuapi.mysql.datasource.DataSourceHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
@@ -28,7 +28,7 @@ public class TPSTester {
      */
     @Test
     void testUpdateQps() throws InterruptedException {
-        DataSource druidDataSource = dataSource();
+        DataSource druidDataSource = DataSourceHolder.get();
         int num  = 8;
         // 起num个线程
         ThreadPoolExecutor executor = new ThreadPoolExecutor(
@@ -105,21 +105,5 @@ public class TPSTester {
         }
     }
 
-    private DataSource dataSource() {
-        DruidDataSource dataSource = new DruidDataSource();
-        //dataSource.setDriverClassName(driverClassName);//如果不配置druid会根据url自动识别dbType，然后选择相应的driverClassName
-        dataSource.setUrl("jdbc:mysql://localhost:3306/idc?useUnicode=true&characterEncoding=utf-8&useSSL=false&useLocalSessionState=true&serverTimezone=UTC");
-        dataSource.setUsername("root");
-        dataSource.setPassword("tiger");
-        dataSource.setValidationQuery("SELECT 1");//用来检测连接是否有效
-        dataSource.setTestOnBorrow(false);//申请连接时执行validationQuery检测连接是否有效，做了这个配置会降低性能
-        dataSource.setTestOnReturn(false);//归还连接时执行validationQuery检测连接是否有效，做了这个配置会降低性能
-        //申请连接的时候检测，如果空闲时间大于timeBetweenEvictionRunsMillis，执行validationQuery检测连接是否有效。
-        dataSource.setTestWhileIdle(true);//如果检测失败，则连接将被从池中去除
-        dataSource.setTimeBetweenEvictionRunsMillis(600000);
-        dataSource.setMaxActive(100);
-        dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
-        dataSource.setInitialSize(50);
-        return dataSource;
-    }
+
 }

@@ -23,6 +23,7 @@ public class TPSTester {
     void testTps() throws InterruptedException {
         JedisPool jedisPool = testPool();
         int num  = 100;
+        int batchNum = 10000;
         // 起num个线程
         ThreadPoolExecutor executor = new ThreadPoolExecutor(
                 num,num,0, TimeUnit.DAYS,new LinkedBlockingDeque<>()
@@ -42,7 +43,7 @@ public class TPSTester {
                         } catch (BrokenBarrierException e) {
                             e.printStackTrace();
                         }
-                        int times = 10000;// 1万次
+                        int times = batchNum;// 1万次
                         try {
                             while (times-->0) {
                                 int buyNumber = 1;
@@ -53,8 +54,10 @@ public class TPSTester {
                                  *                     " return -1" +
                                  *                     " end";
                                  */
-                                jedis.evalsha("d5a009b70fd2da18a58eb1ecf20ef5fac54b8024", Lists.newArrayList("goods1.number"), Lists.newArrayList(buyNumber + ""));
+//                                jedis.evalsha("d5a009b70fd2da18a58eb1ecf20ef5fac54b8024", Lists.newArrayList("goods1.number"), Lists.newArrayList(buyNumber + ""));
+                                String plan = jedis.get("route");
                             }
+
                         } finally {// 关闭连接
                             jedis.close();
                             latch.countDown();
@@ -66,7 +69,7 @@ public class TPSTester {
         executor.shutdown();
         long end = System.currentTimeMillis();
         System.out.println("main execute");
-        long qps = 10000 * num * 1000 / (end - start);
+        long qps = batchNum * num * 1000 / (end - start);
         System.out.println("QPS:"+qps);
     }
 
