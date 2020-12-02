@@ -17,6 +17,7 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.URISyntaxException;
@@ -74,15 +75,26 @@ public class HttpClients {
         return EntityUtils.toString(response.getEntity(), Consts.UTF_8);
     }
 
-    public static String doPostWithFormData(String url, Map<String, String> params,Map<String, String> headers) throws IOException {
+    public static String doPostWithFormData(String url, Map<String, Object> params,Map<String, String> headers) throws IOException {
         HttpPost httpPost = new HttpPost(url);
         httpPost.setHeaders(turnMapToHeaders(headers));
         if (null != params && params.size() > 0) {
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-            for (Map.Entry<String, String> entry : params.entrySet()) {
-                if (entry.getValue() == null)
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                Object value = entry.getValue();
+                if (value == null) {
                     continue;
-                builder.addTextBody(entry.getKey(), entry.getValue(), ContentType.TEXT_PLAIN);
+                }
+                if(value instanceof byte[]){
+                    /**
+                     * Note: SpringMVC接收文件上传时，filename不能为空
+                     */
+                    builder.addBinaryBody(entry.getKey(),(byte[]) value,ContentType.DEFAULT_BINARY,entry.getKey());
+                }else if(value instanceof File){
+                    builder.addBinaryBody(entry.getKey(),(File)value);
+                }else{
+                    builder.addTextBody(entry.getKey(), String.valueOf(value), ContentType.TEXT_PLAIN);
+                }
             }
             HttpEntity entity = builder.build();
             httpPost.setEntity(entity);
